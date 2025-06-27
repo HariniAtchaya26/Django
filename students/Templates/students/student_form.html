@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ action }} Student</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'students/css/style.css' %}">
+</head>
+<body>
+  <div class="container">
+    <h1 class="app-title">{{ action }} Student</h1>
+
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn primary">{{ action }} Student</button>
+    </form>
+
+    <a href="{% url 'student_list' %}" class="btn">← Back</a>
+  </div>
+</body>
+</html>
