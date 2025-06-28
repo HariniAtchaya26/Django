@@ -1,15 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>{% block title %}Student Portal{% endblock %}</title>
+    <title>{% block title %}Student Management{% endblock %}</title>
 </head>
 <body>
-  {% if user.is_authenticated %}
-    Welcome, {{ user.username }} | <a href="{% url 'logout' %}">Logout</a>
-  {% else %}
-    <a href="{% url 'login' %}">Login</a> | <a href="{% url 'register' %}">Register</a>
-  {% endif %}
-  <hr>
-  {% block content %}{% endblock %}
+    <nav>
+        {% if user.is_authenticated %}
+            Hello, {{ user.username }} | Role: {{ user.profile.role }}
+            <a href="{% url 'logout' %}">Logout</a>
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            {% if user.profile.role == 'admin' %}
+                <a href="{% url 'add_student' %}">Add Student</a>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}">Register</a>
+        {% endif %}
+    </nav>
+    {% for message in messages %}
+        <p style="color: green;">{{ message }}</p>
+    {% endfor %}
+    {% block content %}{% endblock %}
 </body>
 </html>

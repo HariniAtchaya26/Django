@@ -1,79 +1,44 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib import messages
-from .forms import RegistrationForm
-
-
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.urls import reverse_lazy
 from .models import Student
-from .forms import StudentForm
+from django.db.models import Count
 
-# Role checkers
-def is_admin(user):
-    return user.groups.filter(name='Admin').exists()
+class RoleRequiredMixin(UserPassesTestMixin):
+    allowed_roles = []
 
-def is_viewer(user):
-    return user.groups.filter(name='Viewer').exists()
+    def test_func(self):
+        return self.request.user.groups.filter(name__in=self.allowed_roles).exists()
 
-def is_admin_or_viewer(user):
-    return is_admin(user) or is_viewer(user)
+class StudentListView(LoginRequiredMixin, ListView):
+    model = Student
+    template_name = 'students/list.html'
+    context_object_name = 'students'
 
-# Register view
-def register_view(request):
-    form = UserCreationForm(request.POST or None)
-    if form.is_valid():
-        user = form.save()
-        messages.success(request, "Registration successful! Ask admin to assign your role.")
-        return redirect('login')
-    return render(request, 'registration/register.html', {'form': form})
+class StudentCreateView(LoginRequiredMixin, RoleRequiredMixin, CreateView):
+    model = Student
+    fields = ['name', 'age', 'classroom']
+    template_name = 'students/form.html'
+    success_url = reverse_lazy('students:list')
+    allowed_roles = ['admin']
 
-# Login view
-def login_view(request):
-    form = AuthenticationForm(request, data=request.POST or None)
-    if form.is_valid():
-        login(request, form.get_user())
-        return redirect('student_list')
-    return render(request, 'registration/login.html', {'form': form})
+class StudentUpdateView(LoginRequiredMixin, RoleRequiredMixin, UpdateView):
+    model = Student
+    fields = ['name', 'age', 'classroom']
+    template_name = 'students/form.html'
+    success_url = reverse_lazy('students:list')
+    allowed_roles = ['admin']
 
-# Logout view
-def logout_view(request):
-    logout(request)
-    return redirect('login')
+class StudentDeleteView(LoginRequiredMixin, RoleRequiredMixin, DeleteView):
+    model = Student
+    template_name = 'students/confirm_delete.html'
+    success_url = reverse_lazy('students:list')
+    allowed_roles = ['admin']
 
-# Student list view
-@login_required
-@user_passes_test(is_admin_or_viewer)
-def student_list(request):
-    students = Student.objects.all()
-    return render(request, 'students/list.html', {'students': students})
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'students/dashboard.html'
 
-# Add student (admin only)
-@login_required
-@user_passes_test(is_admin)
-def student_add(request):
-    form = StudentForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-        messages.success(request, "Student added successfully.")
-        return redirect('student_list')
-    return render(request, 'students/add.html', {'form': form})
-
-# Edit student (admin only)
-@login_required
-@user_passes_test(is_admin)
-def student_edit(request, pk):
-    student = get_object_or_404(Student, pk=pk)
-    form = StudentForm(request.POST or None, instance=student)
-    if form.is_valid():
-        form.save()
-        messages.success(request, "Student updated successfully.")
-        return redirect('student_list')
-    return render(request, 'students/edit.html', {'form': form})              
-def register_view(request):
-    form = RegistrationForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-        messages.success(request, "Registration successful!")
-        return redirect('login')
-    return render(request, 'registration/register.html', {'form': form})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['class_counts'] = Student.objects.values('classroom').annotate(total=Count('id'))
+        return context

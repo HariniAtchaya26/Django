@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'students',
     
 ]
-AUTH_USER_MODEL = 'students.CustomUser' 
+# AUTH_USER_MODEL = 'students.CustomUser' 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'

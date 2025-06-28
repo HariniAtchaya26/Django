@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Dashboard</h2>
+  {% for entry in class_counts %}
+    <p>Class {{ entry.classroom }}: {{ entry.total }} students</p>
+  {% endfor %}
+{% endblock %}

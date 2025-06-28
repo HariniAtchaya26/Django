@@ -1,11 +1,11 @@
 from django.urls import path
-from . import views
+from .views import RegisterView
+from .views import StudentListView, StudentCreateView, StudentUpdateView, StudentDeleteView
 
 urlpatterns = [
-    path('', views.student_list, name='student_list'),
-    path('add/', views.student_add, name='student_add'),
-    path('edit/<int:pk>/', views.student_edit, name='student_edit'),
-    path('login/', views.login_view, name='login'),
-    path('logout/', views.logout_view, name='logout'),
-    path('register/', views.register_view, name='register'),
+    path('', StudentListView.as_view(), name='student_list'),
+    path('add/', StudentCreateView.as_view(), name='student_add'),
+    path('edit/<int:pk>/', StudentUpdateView.as_view(), name='student_edit'),
+    path('delete/<int:pk>/', StudentDeleteView.as_view(), name='student_delete'),
+    path('register/', RegisterView.as_view(), name='register'),  # 👈 add this
 ]

@@ -1,16 +1,6 @@
+# students/models.py
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-
-class CustomUser(AbstractUser):
-    username = models.CharField(
-        max_length=30,
-        unique=True,
-        help_text="Max 30 characters. Letters, digits and @/./+/-/_ only.",
-        error_messages={
-            'unique': "A user with that username already exists.",
-        },
-    )
-    # You can extend later with phone, profile_pic, etc.
+from django.contrib.auth.models import User
 
 class Student(models.Model):
     name = models.CharField(max_length=100)
@@ -19,4 +9,15 @@ class Student(models.Model):
     email = models.EmailField(unique=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.roll_number})"
+
+class Profile(models.Model):
+    ROLE_CHOICES = (
+        ('admin', 'Admin'),
+        ('viewer', 'Viewer'),
+    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.role}"
