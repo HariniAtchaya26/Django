@@ -1,7 +1,6 @@
-{% extends 'base.html' %}
-{% block content %}
-  <h2>Dashboard</h2>
-  {% for entry in class_counts %}
-    <p>Class {{ entry.classroom }}: {{ entry.total }} students</p>
-  {% endfor %}
-{% endblock %}
+<h1>Student Count by Class</h1>
+<ul>
+    {% for row in class_counts %}
+        <li>{{ row.class_name }}: {{ row.count }}</li>
+    {% endfor %}
+</ul>

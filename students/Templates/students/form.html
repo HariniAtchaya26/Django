@@ -1,8 +1,6 @@
-{% extends "base.html" %}
-{% block content %}
-  <h2>{% if object %}Edit{% else %}Add{% endif %} Student</h2>
-  <form method="post">{% csrf_token %}
+<h1>{{ view.object.pk|yesno:"Edit,Add" }} Student</h1>
+<form method="post">
+    {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Save</button>
-  </form>
-{% endblock %}
+</form>

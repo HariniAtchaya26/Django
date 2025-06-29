@@ -1,0 +1,10 @@
+<h1>Students</h1>
+{% for student in students %}
+    {% include 'students/partials/student_card.html' %}
+{% empty %}
+    <p>No students available.</p>
+{% endfor %}
+
+{% if user.profile.role == 'admin' %}
+    <a href="{% url 'student_add' %}">Add Student</a>
+{% endif %}
