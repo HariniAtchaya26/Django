@@ -1,10 +1,36 @@
-<h1>Students</h1>
-{% for student in students %}
-    {% include 'students/partials/student_card.html' %}
-{% empty %}
-    <p>No students available.</p>
-{% endfor %}
+{% extends "base.html" %}
+{% load static %}
 
-{% if user.profile.role == 'admin' %}
-    <a href="{% url 'student_add' %}">Add Student</a>
-{% endif %}
+{% block content %}
+  <h1>Students</h1>
+
+  {# 1) Link to Settings (admins only) #}
+  {% if user.is_authenticated and user.profile.role == 'admin' %}
+    <p>
+      <a href="{% url 'settings' %}">⚙️ Edit Site Settings</a>
+    </p>
+  {% endif %}
+
+  {# 2) Link to CSV export if allowed #}
+  {% if user.is_authenticated and settings_obj %}
+    {% if user.profile.role == 'admin' or settings_obj.allow_viewer_download %}
+      <p>
+        <a href="{% url 'export_students_csv' %}">📥 Download CSV of Students</a>
+      </p>
+    {% endif %}
+  {% endif %}
+
+  {# 3) Student cards #}
+  {% if students %}
+    <ul class="student-list">
+      {% for student in students %}
+        <li>
+          <strong>{{ student.name }}</strong>
+          (Roll: {{ student.roll_number }}, Class: {{ student.class_name }}, Email: {{ student.email }})
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No students available.</p>
+  {% endif %}
+{% endblock %}

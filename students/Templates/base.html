@@ -1,25 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{% block title %}Student Management{% endblock %}</title>
-</head>
-<body>
-    <nav>
-        {% if user.is_authenticated %}
-            Hello, {{ user.username }} | Role: {{ user.profile.role }}
-            <a href="{% url 'logout' %}">Logout</a>
-            <a href="{% url 'dashboard' %}">Dashboard</a>
-            {% if user.profile.role == 'admin' %}
-                <a href="{% url 'add_student' %}">Add Student</a>
-            {% endif %}
-        {% else %}
-            <a href="{% url 'login' %}">Login</a>
-            <a href="{% url 'register' %}">Register</a>
-        {% endif %}
-    </nav>
-    {% for message in messages %}
-        <p style="color: green;">{{ message }}</p>
+{% if messages %}
+  <ul class="messages">
+    {% for msg in messages %}
+      <li class="{{ msg.tags }}">{{ msg }}</li>
     {% endfor %}
-    {% block content %}{% endblock %}
-</body>
-</html>
+  </ul>
+{% endif %}
+{% block content %}{% endblock %}
