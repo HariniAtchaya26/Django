@@ -18,4 +18,5 @@ urlpatterns = [
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
     path('settings/', SettingsView.as_view(), name='settings'),
     path('export-csv/', export_students_csv, name='export_students_csv'),
+    
 ]

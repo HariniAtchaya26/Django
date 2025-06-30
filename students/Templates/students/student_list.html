@@ -34,3 +34,14 @@
     <p>No students available.</p>
   {% endif %}
 {% endblock %}
+
+
+<!-- student_list.html -->
+{% extends "base.html" %}
+{% block title %}Student List{% endblock %}
+{% block content %}
+<h2>Students</h2>
+{% for student in students %}
+  {{ student.name }} - {{ student.class_name }}<br>
+{% endfor %}
+{% endblock %}

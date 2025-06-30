@@ -7,7 +7,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy
 from django.db.models import Count
+from django.db.models import Q
 
+from attendance.models import Attendance
 from .models import Student, Settings
 from .forms import SettingsForm
 from .mixins import AdminRequiredMixin
@@ -73,7 +75,23 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+
         ctx['class_counts'] = Student.objects.values('class_name').annotate(count=Count('id'))
+
+        attendance_stats = []
+        for student in Student.objects.all():
+            total = Attendance.objects.filter(student=student).count()
+            present = Attendance.objects.filter(student=student, status='present').count()
+            percent = (present / total * 100) if total > 0 else 0
+
+            attendance_stats.append({
+                'student': student,
+                'present': present,
+                'total': total,
+                'percent': round(percent, 2),
+            })
+
+        ctx['attendance_stats'] = attendance_stats
         return ctx
 
 
@@ -113,6 +131,8 @@ def export_students_csv(request):
     response['Content-Disposition'] = 'attachment; filename="students.csv"'
     writer = csv.writer(response)
     writer.writerow(['Name', 'Roll Number', 'Class', 'Email'])
+
     for s in Student.objects.all():
         writer.writerow([s.name, s.roll_number, s.class_name, s.email])
+
     return response

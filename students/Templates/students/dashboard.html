@@ -1,6 +1,50 @@
-<h1>Student Count by Class</h1>
-<ul>
-    {% for row in class_counts %}
-        <li>{{ row.class_name }}: {{ row.count }}</li>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+  <h1>Dashboard</h1>
+
+  <h2>Class-wise Student Count</h2>
+  <ul>
+    {% for class in class_counts %}
+      <li>{{ class.class_name }}: {{ class.count }} students</li>
     {% endfor %}
-</ul>
+  </ul>
+
+  <hr>
+
+  <h2>Attendance Summary</h2>
+  <table border="1" cellpadding="8">
+    <tr>
+      <th>Name</th>
+      <th>Roll Number</th>
+      <th>Class</th>
+      <th>Present</th>
+      <th>Total</th>
+      <th>Attendance %</th>
+    </tr>
+    {% for stat in attendance_stats %}
+      <tr>
+        <td>{{ stat.student.name }}</td>
+        <td>{{ stat.student.roll_number }}</td>
+        <td>{{ stat.student.class_name }}</td>
+        <td>{{ stat.present }}</td>
+        <td>{{ stat.total }}</td>
+        <td>{{ stat.percent }}%</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <hr>
+
+  <h3>Export Attendance</h3>
+  <form method="get" action="{% url 'export_attendance' %}">
+    <label>Start Date:</label>
+    <input type="date" name="start" required>
+    <label>End Date:</label>
+    <input type="date" name="end" required>
+    <button type="submit">Export CSV</button>
+  </form>
+{% endblock %}

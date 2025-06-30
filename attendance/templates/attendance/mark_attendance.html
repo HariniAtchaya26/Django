@@ -1,0 +1,20 @@
+<h2>Mark Attendance</h2>
+<form method="post">
+  {% csrf_token %}
+  <label>Date:</label>
+  <input type="date" name="date" required><br><br>
+
+  {% for student in students %}
+    <div>
+      <strong>{{ student.name }}</strong><br>
+      <label>
+        <input type="radio" name="status_{{ student.id }}" value="present" required> Present
+      </label>
+      <label>
+        <input type="radio" name="status_{{ student.id }}" value="absent"> Absent
+      </label>
+    </div><hr>
+  {% endfor %}
+
+  <button type="submit">Submit</button>
+</form>
