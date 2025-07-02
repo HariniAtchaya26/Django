@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Manager</title>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.7"></script>
+    <script>
+        document.addEventListener('htmx:afterSwap', (e) => {
+            if (e.detail.target.id === 'modal-body') {
+                document.getElementById('modal').classList.remove('hidden');
+            }
+            if (e.detail.target.id === 'sidepanel-body') {
+                document.getElementById('sidepanel').classList.remove('hidden');
+            }
+        });
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4">
+    {% block content %}{% endblock %}
+</body>
+</html>

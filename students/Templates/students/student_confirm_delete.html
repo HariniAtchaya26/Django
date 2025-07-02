@@ -1,13 +1,10 @@
-{% extends "base.html" %}
+{% extends "students/base.html" %}
 
 {% block content %}
-  <h1>Confirm Delete</h1>
-
-  <p>Are you sure you want to delete <strong>{{ object.name }}</strong> ({{ object.roll_number }})?</p>
-
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit">Yes, delete</button>
+  <h2>Delete Student</h2>
+  <p>Are you sure you want to delete "{{ object }}"?</p>
+  <form method="post">{% csrf_token %}
+    <button type="submit">Yes, Delete</button>
     <a href="{% url 'student_list' %}">Cancel</a>
   </form>
 {% endblock %}

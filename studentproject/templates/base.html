@@ -1,0 +1,25 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Student Management{% endblock %}</title>
+  <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  {% if messages %}
+    <div id="messages">
+      {% for message in messages %}
+        <div class="message {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+
+  <!-- Modal and sidepanel containers -->
+  <div id="modal" class="modal" hx-target="this" hx-swap="outerHTML"></div>
+  <div id="sidepanel" class="sidepanel" hx-target="this" hx-swap="outerHTML"></div>
+</body>
+</html>

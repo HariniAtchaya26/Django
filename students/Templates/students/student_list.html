@@ -1,47 +1,34 @@
-{% extends "base.html" %}
-{% load static %}
+{% extends 'students/base.html' %}
 
 {% block content %}
-  <h1>Students</h1>
+<div class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold">Student List</h1>
+    <button class="bg-blue-600 text-white px-4 py-2 rounded" 
+            hx-get="{% url 'student_add' %}" 
+            hx-target="#modal-body" 
+            hx-trigger="click"
+            _="on htmx:afterRequest wait 10ms then add .block to #modal">
+        ➕ Add Student
+    </button>
+</div>
 
-  {# 1) Link to Settings (admins only) #}
-  {% if user.is_authenticated and user.profile.role == 'admin' %}
-    <p>
-      <a href="{% url 'settings' %}">⚙️ Edit Site Settings</a>
-    </p>
-  {% endif %}
+<div id="message-area"></div>
 
-  {# 2) Link to CSV export if allowed #}
-  {% if user.is_authenticated and settings_obj %}
-    {% if user.profile.role == 'admin' or settings_obj.allow_viewer_download %}
-      <p>
-        <a href="{% url 'export_students_csv' %}">📥 Download CSV of Students</a>
-      </p>
-    {% endif %}
-  {% endif %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="student-list">
+    {% include 'students/student_list_partial.html' %}
+</div>
 
-  {# 3) Student cards #}
-  {% if students %}
-    <ul class="student-list">
-      {% for student in students %}
-        <li>
-          <strong>{{ student.name }}</strong>
-          (Roll: {{ student.roll_number }}, Class: {{ student.class_name }}, Email: {{ student.email }})
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No students available.</p>
-  {% endif %}
-{% endblock %}
+<!-- Modal -->
+<div id="modal" class="fixed z-50 inset-0 bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-auto mt-24 p-4">
+        <div id="modal-body"></div>
+        <button onclick="document.getElementById('modal').classList.add('hidden')" class="mt-4 bg-red-500 text-white px-4 py-1 rounded">Close</button>
+    </div>
+</div>
 
-
-<!-- student_list.html -->
-{% extends "base.html" %}
-{% block title %}Student List{% endblock %}
-{% block content %}
-<h2>Students</h2>
-{% for student in students %}
-  {{ student.name }} - {{ student.class_name }}<br>
-{% endfor %}
+<!-- Side Panel -->
+<div id="sidepanel" class="fixed right-0 top-0 w-80 h-full bg-gray-100 shadow-lg p-4 overflow-auto hidden">
+    <button onclick="document.getElementById('sidepanel').classList.add('hidden')" class="float-right">❌</button>
+    <div id="sidepanel-body"></div>
+</div>
 {% endblock %}

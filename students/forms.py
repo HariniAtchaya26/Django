@@ -1,7 +1,7 @@
 from django import forms
-from .models import Settings
+from .models import Student
 
-class SettingsForm(forms.ModelForm):
+class StudentForm(forms.ModelForm):
     class Meta:
-        model = Settings
-        fields = ['max_students_per_class', 'allow_viewer_download']
+        model = Student
+        fields = ['name', 'roll_number', 'class_name', 'email']

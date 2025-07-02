@@ -1,0 +1,19 @@
+{% for student in students %}
+<div class="bg-white p-4 rounded shadow">
+    <h2 class="text-xl font-semibold">{{ student.name }}</h2>
+    <p>Age: {{ student.age }}</p>
+    <p>Grade: {{ student.grade }}</p>
+    <div class="mt-2 space-x-2">
+        <button hx-get="{% url 'student_edit' student.pk %}" hx-target="#modal-body"
+                _="on htmx:afterRequest wait 10ms then add .block to #modal"
+                class="bg-yellow-500 px-2 py-1 text-white rounded">✏️ Edit</button>
+
+        <button hx-get="{% url 'student_detail' student.pk %}" hx-target="#sidepanel-body"
+                _="on htmx:afterRequest wait 10ms then add .block to #sidepanel"
+                class="bg-blue-500 px-2 py-1 text-white rounded">👁 View</button>
+
+        <button hx-get="{% url 'student_delete' student.pk %}" hx-target="#student-list"
+                class="bg-red-500 px-2 py-1 text-white rounded">🗑 Delete</button>
+    </div>
+</div>
+{% endfor %}
