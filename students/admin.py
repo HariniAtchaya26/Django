@@ -1,14 +1,12 @@
 from django.contrib import admin
-from .models import Student, Profile, Settings
+from .models import Student, ActionLog
 
-@admin.register(Settings)
-class SettingsAdmin(admin.ModelAdmin):
-    # Only allow one Settings instance and prevent deletion
-    def has_add_permission(self, request):
-        return not Settings.objects.exists()
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ('name','roll_number','class_name','email')
 
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-admin.site.register(Student)
-admin.site.register(Profile)
+@admin.register(ActionLog)
+class ActionLogAdmin(admin.ModelAdmin):
+    list_display = ('timestamp','user','action','student')
+    list_filter  = ('action','user')
+    date_hierarchy = 'timestamp'

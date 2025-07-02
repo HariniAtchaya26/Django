@@ -1,5 +1,26 @@
-<form method="post" hx-post="{{ request.path }}" hx-target="#student-list" hx-swap="outerHTML">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">💾 Save</button>
+<form
+  method="post"
+  hx-post="{% if form.instance.pk %}{% url 'student_edit' form.instance.pk %}{% else %}{% url 'student_add' %}{% endif %}"
+  hx-target="#modal"
+  hx-swap="innerHTML">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  <div>
+    {{ form.name.label_tag }}<br>
+    {{ form.name }} {{ form.name.errors }}
+  </div>
+  <div>
+    {{ form.roll_number.label_tag }}<br>
+    {{ form.roll_number }} {{ form.roll_number.errors }}
+  </div>
+  <div>
+    {{ form.class_name.label_tag }}<br>
+    {{ form.class_name }} {{ form.class_name.errors }}
+  </div>
+  <div>
+    {{ form.email.label_tag }}<br>
+    {{ form.email }} {{ form.email.errors }}
+  </div>
+  <button type="submit">Save</button>
+  <button type="button" onclick="document.getElementById('modal').innerHTML=''">Cancel</button>
 </form>

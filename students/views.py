@@ -1,100 +1,102 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.decorators import method_decorator
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib import messages
-from django.urls import reverse_lazy
-from django.core.mail import send_mail
-from django.conf import settings
-from django.shortcuts import redirect
-from django.contrib import messages
+from django.shortcuts       import render, redirect
+from django.urls           import reverse_lazy
+from django.contrib        import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic  import ListView, CreateView, UpdateView, DeleteView
+from django.core.mail      import send_mail
+from django.conf           import settings
+from django.views.generic import ListView
+from .models import Student
 
-from .models import Student, ActionLog
-from .forms import StudentForm
-from django.contrib.auth.models import User
 
-# Utility to send email to admin
-def send_admin_email_if_needed(student_name, performed_by):
-    subject = f"New Student Added: {student_name}"
-    message = f"{performed_by.username} added a new student named {student_name}."
-    admin_emails = [user.email for user in User.objects.filter(is_superuser=True)]
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, admin_emails)
+from .models    import Student, ActionLog
+from .forms     import StudentForm
+
+# ensures only staff can add/edit/delete
+class AdminRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_staff
 
 class StudentListView(LoginRequiredMixin, ListView):
     model = Student
     template_name = 'students/student_list.html'
     context_object_name = 'students'
 
-@method_decorator(user_passes_test(lambda u: u.is_superuser), name='dispatch')
-class ActionLogListView(ListView):
-    model = ActionLog
-    template_name = 'students/action_logs.html'
-    context_object_name = 'logs'
-    ordering = ['-timestamp']
-
-class StudentCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
-    model = Student
-    form_class = StudentForm
-    template_name = 'students/student_form.html'
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-
-        # Send email after successful save
-        send_mail(
-            subject='New Student Added',
-            message=f'Student "{self.object.name}" was added by {self.request.user}.',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=['admin@example.com'],  # replace with real admin email
-            fail_silently=False,
-        )
-
-        return response
-
-    def test_func(self):
-        return self.request.user.profile.role == 'Admin'
-
-class StudentUpdateView(LoginRequiredMixin, UpdateView):
+class StudentCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     model = Student
     form_class = StudentForm
     template_name = 'students/student_form.html'
     success_url = reverse_lazy('student_list')
 
     def form_valid(self, form):
-        response = super().form_valid(form)
+        resp = super().form_valid(form)
+        # log
         ActionLog.objects.create(
             user=self.request.user,
-            action='EDIT',
-            student_name=form.instance.name
+            student=self.object,
+            action='create'
         )
-        messages.success(self.request, "Student updated successfully!")
-        return response
+        # email admin
+        send_mail(
+            'New student added',
+            f'{self.object} was added by {self.request.user.username}.',
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.ADMIN_EMAIL],
+            fail_silently=True
+        )
+        messages.success(self.request, "Student created & admin notified.")
+        return resp
 
-class StudentDeleteView(LoginRequiredMixin, DeleteView):
+class StudentUpdateView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = Student
+    form_class = StudentForm
+    template_name = 'students/student_form.html'
+    success_url = reverse_lazy('student_list')
+
+    def form_valid(self, form):
+        resp = super().form_valid(form)
+        ActionLog.objects.create(
+            user=self.request.user,
+            student=self.object,
+            action='update'
+        )
+        messages.success(self.request, "Student updated.")
+        return resp
+
+class StudentDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
+    model = Student
+    template_name = 'students/student_confirm_delete.html'
     success_url = reverse_lazy('student_list')
 
     def delete(self, request, *args, **kwargs):
-        student = self.get_object()
+        obj = self.get_object()
         ActionLog.objects.create(
             user=request.user,
-            action='DELETE',
-            student_name=student.name
+            student=obj,
+            action='delete'
         )
-        messages.success(request, "Student deleted successfully!")
+        messages.success(request, "Student deleted.")
         return super().delete(request, *args, **kwargs)
-    def role_based_login_redirect(request):
-        if request.user.is_authenticated:
-            if request.user.profile.role == 'Admin':
-                messages.success(request, "Welcome Admin!")
-            elif request.user.profile.role == 'Viewer':
-                messages.info(request, "Welcome Viewer!")
-        return redirect('student_list')      
-        
 
+class ActionLogListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
+    model = ActionLog
+    template_name = 'students/action_logs.html'
+    context_object_name = 'logs'
+from django.views.generic.detail import DetailView
+from .models import Student
 
+class StudentDetailView(DetailView):
+    model = Student
+    template_name = "students/student_detail.html"  # You can create this HTML file
+class StudentListView(ListView):
+    model = Student
+    template_name = 'students/student_list.html'  # ✅ Path to your template
+    context_object_name = 'students'
 
-    
+from django.views.generic import ListView
+from .models import Student
 
-
+class StudentListView(ListView):
+    model = Student
+    template_name = 'students/student_list.html'
+    context_object_name = 'students'    
