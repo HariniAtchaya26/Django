@@ -1,12 +1,15 @@
 from django.contrib import admin
-from .models import Student, ActionLog
+from .models import Student, Attendance, ActionLog  # ✅ Make sure ActionLog is imported
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('name','roll_number','class_name','email')
+    list_display = ('name', 'roll_number', 'student_class')
+
+@admin.register(Attendance)
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = ('student', 'date', 'status')
 
 @admin.register(ActionLog)
 class ActionLogAdmin(admin.ModelAdmin):
-    list_display = ('timestamp','user','action','student')
-    list_filter  = ('action','user')
-    date_hierarchy = 'timestamp'
+    list_display = ('user', 'action', 'student', 'timestamp')
+    list_filter = ('action', 'timestamp')

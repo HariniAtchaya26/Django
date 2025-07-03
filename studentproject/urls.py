@@ -20,5 +20,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('students/', include('students.urls')),  # ✅ includes student_list
+    path('', include('students.urls')),     # existing views
+    path('api/', include('api.urls')),      # ✅ added API routes
+    path('api-auth/', include('rest_framework.urls')),  # browsable API login
 ]

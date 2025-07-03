@@ -41,9 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'students',
     'attendance',
+    'api',
+    'rest_framework',
+    'rest_framework.authtoken',
+]
+
 
     
-]
+
 # AUTH_USER_MODEL = 'students.CustomUser' 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'student_list'
@@ -158,3 +163,13 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'students/static')]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Authentication redirect settings
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
