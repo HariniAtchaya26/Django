@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from students.models import Student, Attendance
+from datetime import datetime
+
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,3 +14,9 @@ class AttendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attendance
         fields = ['id', 'student', 'date', 'status']
+class AttendanceSerializer(serializers.ModelSerializer):
+    date = serializers.DateField(input_formats=['%Y-%m-%d', '%d-%m-%Y'])  # 👈 Add both formats
+
+    class Meta:
+        model = Attendance
+        fields = '__all__'
