@@ -1,27 +1,56 @@
-from django.shortcuts       import render, redirect
-from django.urls           import reverse_lazy
-from django.contrib        import messages
+# students/views.py
+
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic  import ListView, CreateView, UpdateView, DeleteView
-from django.core.mail      import send_mail
-from django.conf           import settings
-from django.views.generic import ListView
-from .models import Student
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.core.mail import send_mail
+from django.conf import settings
 
+from .models import Student, ActionLog
+from .forms import StudentForm  
+from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.views import View
+import json
 
-from .models    import Student, ActionLog
-from .forms     import StudentForm
+@method_decorator(csrf_exempt, name='dispatch')
+class LoginAPIView(View):
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.body.decode('utf-8'))
+        username = data.get('username')
+        password = data.get('password')
 
-# ensures only staff can add/edit/delete
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return JsonResponse({'message': 'Login successful'})
+        else:
+            return JsonResponse({'error': 'Invalid credentials'}, status=401)
+
+# ✅ Custom Login View
+class CustomLoginView(LoginView):
+    template_name = 'students/login.html'
+    authentication_form = AuthenticationForm
+
+# ✅ Mixin to restrict to staff (admin)
 class AdminRequiredMixin(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_staff
 
+# ✅ List all students
 class StudentListView(LoginRequiredMixin, ListView):
     model = Student
     template_name = 'students/student_list.html'
     context_object_name = 'students'
 
+# ✅ Create student (admin only)
 class StudentCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     model = Student
     form_class = StudentForm
@@ -30,13 +59,11 @@ class StudentCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
 
     def form_valid(self, form):
         resp = super().form_valid(form)
-        # log
         ActionLog.objects.create(
             user=self.request.user,
             student=self.object,
             action='create'
         )
-        # email admin
         send_mail(
             'New student added',
             f'{self.object} was added by {self.request.user.username}.',
@@ -47,6 +74,7 @@ class StudentCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
         messages.success(self.request, "Student created & admin notified.")
         return resp
 
+# ✅ Update student (admin only)
 class StudentUpdateView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = Student
     form_class = StudentForm
@@ -63,6 +91,7 @@ class StudentUpdateView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
         messages.success(self.request, "Student updated.")
         return resp
 
+# ✅ Delete student (admin only)
 class StudentDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
     model = Student
     template_name = 'students/student_confirm_delete.html'
@@ -78,25 +107,13 @@ class StudentDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
         messages.success(request, "Student deleted.")
         return super().delete(request, *args, **kwargs)
 
+# ✅ Show action logs (admin only)
 class ActionLogListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     model = ActionLog
     template_name = 'students/action_logs.html'
     context_object_name = 'logs'
-from django.views.generic.detail import DetailView
-from .models import Student
 
-class StudentDetailView(DetailView):
+# ✅ Student detail view
+class StudentDetailView(LoginRequiredMixin, DetailView):
     model = Student
-    template_name = "students/student_detail.html"  # You can create this HTML file
-class StudentListView(ListView):
-    model = Student
-    template_name = 'students/student_list.html'  # ✅ Path to your template
-    context_object_name = 'students'
-
-from django.views.generic import ListView
-from .models import Student
-
-class StudentListView(ListView):
-    model = Student
-    template_name = 'students/student_list.html'
-    context_object_name = 'students'    
+    template_name = "students/student_detail.html"

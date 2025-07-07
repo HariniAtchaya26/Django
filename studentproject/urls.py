@@ -17,10 +17,16 @@ Including another URLconf
 # studentproject/urls.py
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from api.views import StudentViewSet, AttendanceViewSet
+
+router = DefaultRouter()
+router.register(r'students', StudentViewSet)
+router.register(r'attendance', AttendanceViewSet)
 
 urlpatterns = [
+
+    
     path('admin/', admin.site.urls),
-    path('', include('students.urls')),     # existing views
-    path('api/', include('api.urls')),      # ✅ added API routes
-    path('api-auth/', include('rest_framework.urls')),  # browsable API login
+    path('api/', include('api.urls')),
 ]

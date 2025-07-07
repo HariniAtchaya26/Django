@@ -3,12 +3,14 @@ from django.contrib.auth.models import User
 
 # Student model
 class Student(models.Model):
+    student_id = models.CharField(max_length=20)
     name = models.CharField(max_length=100)
-    roll_number = models.CharField(max_length=20, unique=True)
-    student_class = models.CharField(max_length=50)
+    age = models.IntegerField()
+    roll_number = models.CharField(max_length=20)
+    student_class = models.CharField(max_length=10)
 
     def __str__(self):
-        return f"{self.name} ({self.roll_number})"
+        return self.name
 
 # Attendance model (linked to Student)
 class Attendance(models.Model):
