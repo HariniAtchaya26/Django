@@ -14,19 +14,32 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-# studentproject/urls.py
+
+
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from api.views import StudentViewSet, AttendanceViewSet
+from django.conf import settings
+from django.conf.urls.static import static
 
+# Router for API ViewSets
 router = DefaultRouter()
 router.register(r'students', StudentViewSet)
 router.register(r'attendance', AttendanceViewSet)
 
 urlpatterns = [
-
-    
     path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
+
+    # DRF ViewSets from api app
+    path('api/', include(router.urls)),
+
+    # Include function-based/class-based API views from students app
+    path('api/', include('students.urls')),
+     path('api/', include('api.urls')),
 ]
+
+# Serve media files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

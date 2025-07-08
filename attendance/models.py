@@ -6,9 +6,11 @@ class Attendance(models.Model):
         ('present', 'Present'),
         ('absent', 'Absent'),
     )
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+class Attendance(models.Model):
+    student = models.ForeignKey('students.Student', null=True, blank=True, on_delete=models.CASCADE)  # ✅ FIXED
     date = models.DateField()
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=10, choices=(('Present', 'Present'), ('Absent', 'Absent')))
+
 
     class Meta:
         unique_together = ('student', 'date')

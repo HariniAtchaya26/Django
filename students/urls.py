@@ -1,15 +1,18 @@
-from django.urls import path
-from .views import CustomLoginView
-from django.contrib.auth.views import LoginView
+# students/urls.py
 
-from .views import StudentListView, StudentCreateView, StudentUpdateView, StudentDeleteView, ActionLogListView
+from django.urls import path
+from .views import (
+    StudentListCreateAPIView,
+    StudentProfileUpdateAPIView,
+    AttendanceCreateAPIView,
+    LeaveRequestCreateAPIView,
+    LeaveRequestListAPIView
+)
 
 urlpatterns = [
-    path('', StudentListView.as_view(), name='student_list'),  # ✅ This is the key line
-    path('add/', StudentCreateView.as_view(), name='student_add'),
-    path('edit/<int:pk>/', StudentUpdateView.as_view(), name='student_edit'),
-    path('delete/<int:pk>/', StudentDeleteView.as_view(), name='student_delete'),
-    path('logs/', ActionLogListView.as_view(), name='action_logs'),
-    path('login/', CustomLoginView.as_view(), name='login'),
-     path('api/login/', LoginView.as_view(), name='api-login')
+    path('students/', StudentListCreateAPIView.as_view(), name='student-list'),
+    path('students/<int:pk>/update/', StudentProfileUpdateAPIView.as_view(), name='student-update'),
+    path('attendance/add/', AttendanceCreateAPIView.as_view(), name='add-attendance'),
+    path('leave/apply/', LeaveRequestCreateAPIView.as_view(), name='apply-leave'),
+    path('leave/list/', LeaveRequestListAPIView.as_view(), name='list-leave'),
 ]

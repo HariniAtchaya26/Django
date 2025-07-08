@@ -11,5 +11,4 @@ class AttendanceAdmin(admin.ModelAdmin):
 
 @admin.register(ActionLog)
 class ActionLogAdmin(admin.ModelAdmin):
-    list_display = ('user', 'action', 'student', 'timestamp')
-    list_filter = ('action', 'timestamp')
+    list_display = ['student', 'action', 'timestamp']
