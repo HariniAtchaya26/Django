@@ -1,34 +1,36 @@
 from rest_framework import serializers
-from students.models import Student, Attendance
-from datetime import datetime
 from django.contrib.auth.models import User
-from .models import Teacher, Student
-from students.models import Student
+from students.models import Student, Attendance,LeaveRequest, Mark
+from .models import Teacher, Mark
 
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields =  ['id','student_id', 'name', 'age', 'roll_number', 'student_class']
+        fields = '__all__'
+
+
+class LeaveRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LeaveRequest
+        fields = '__all__'
+
 
 class AttendanceSerializer(serializers.ModelSerializer):
-    student = serializers.StringRelatedField()  # shows student name
+    student = serializers.StringRelatedField()
+    date = serializers.DateField(input_formats=['%Y-%m-%d', '%d-%m-%Y'])  # Flexible formats
 
     class Meta:
         model = Attendance
         fields = ['id', 'student', 'date', 'status']
-class AttendanceSerializer(serializers.ModelSerializer):
-    date = serializers.DateField(input_formats=['%Y-%m-%d', '%d-%m-%Y'])  # 👈 Add both formats
 
-    class Meta:
-        model = Attendance
-        fields = '__all__'  
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'password']
         extra_kwargs = {'password': {'write_only': True}}
+
 
 class TeacherRegisterSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -43,7 +45,14 @@ class TeacherRegisterSerializer(serializers.ModelSerializer):
         teacher = Teacher.objects.create(user=user, **validated_data)
         return teacher
 
-class StudentSerializer(serializers.ModelSerializer):
+
+class MarkSerializer(serializers.ModelSerializer):
+    student_name = serializers.CharField(source='student.name', read_only=True)
+
     class Meta:
-        model = Student
-        fields = '__all__'        
+        model = Mark
+        fields = ['id', 'student', 'student_name', 'semester', 'subject', 'marks']
+class MarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mark
+        fields = '__all__'

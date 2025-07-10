@@ -7,7 +7,8 @@ class Attendance(models.Model):
         ('absent', 'Absent'),
     )
 class Attendance(models.Model):
-    student = models.ForeignKey('students.Student', null=True, blank=True, on_delete=models.CASCADE)  # ✅ FIXED
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='api_attendance_records', null=True, blank=True)
+
     date = models.DateField()
     status = models.CharField(max_length=10, choices=(('Present', 'Present'), ('Absent', 'Absent')))
 

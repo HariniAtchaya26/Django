@@ -10,15 +10,6 @@ class Teacher(models.Model):
     def __str__(self):
         return self.user.username
 
-class Student(models.Model):
-    student_id = models.CharField(max_length=20, unique=True)
-    name = models.CharField(max_length=100)
-    age = models.IntegerField()
-    roll_number = models.CharField(max_length=10, unique=True)
-    student_class = models.CharField(max_length=20)
-
-    def __str__(self):
-        return f"{self.name} ({self.student_id})"
 
 class Attendance(models.Model):
     STATUS_CHOICES = [
@@ -27,9 +18,20 @@ class Attendance(models.Model):
         ('L', 'Leave'),
     ]
 
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='student_attendance')
+
     date = models.DateField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
 
     def __str__(self):
         return f"{self.student.name} - {self.date} - {self.status}"
+
+
+class Mark(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='student_marks')
+    subject = models.CharField(max_length=100)
+    semester = models.CharField(max_length=10)
+    marks = models.FloatField()
+
+    def __str__(self):
+        return f"{self.student.name} - {self.subject} ({self.semester})"

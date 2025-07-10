@@ -37,6 +37,7 @@ urlpatterns = [
     # Include function-based/class-based API views from students app
     path('api/', include('students.urls')),
      path('api/', include('api.urls')),
+     path('api/', include('students.urls')),
 ]
 
 # Serve media files during development
