@@ -1,0 +1,19 @@
+<h2>Your Teaching Schedule</h2>
+<table border="1">
+  <tr>
+    <th>Weekday</th>
+    <th>Start</th>
+    <th>End</th>
+    <th>Class</th>
+    <th>Subject</th>
+  </tr>
+  {% for item in schedule %}
+    <tr>
+      <td>{{ item.get_weekday_display }}</td>
+      <td>{{ item.period.start_time }}</td>
+      <td>{{ item.period.end_time }}</td>
+      <td>{{ item.classroom.name }}</td>
+      <td>{{ item.subject.name }}</td>
+    </tr>
+  {% endfor %}
+</table>

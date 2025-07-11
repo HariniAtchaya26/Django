@@ -3,7 +3,12 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Max, Sum
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from students.models import Teacher, Timetable
+from students.models import Student, Timetable
 from .models import Student, Attendance, LeaveRequest, Mark
+from .models import Timetable, Class, Subject, Teacher, Period
 from .serializer import (
     StudentSerializer,
     AttendanceSerializer,
@@ -125,3 +130,13 @@ def add_marks(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@login_required
+def teacher_timetable_view(request):
+    teacher = Teacher.objects.get(user=request.user)
+    schedule = Timetable.objects.filter(teacher=teacher).order_by('weekday', 'period__start_time')
+    return render(request, 'students/teacher_timetable.html', {'schedule': schedule})
+@login_required
+def student_timetable_view(request):
+    student = Student.objects.get(user=request.user)
+    schedule = Timetable.objects.filter(classroom=student.student_class).order_by('weekday', 'period__start_time')
+    return render(request, 'students/student_timetable.html', {'schedule': schedule})

@@ -6,3 +6,5 @@ class StudentsConfig(AppConfig):
 
     def ready(self):
         import students.models  # Ensures signal is loaded
+    def ready(self):
+        import students.signals

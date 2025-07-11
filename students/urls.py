@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import add_marks
+from .views import teacher_timetable_view, student_timetable_view
 from .views import (
     StudentListCreateAPIView,
     StudentProfileUpdateAPIView,
@@ -35,4 +36,7 @@ urlpatterns = [
     path('analytics/subject-topper/', SubjectWiseTopperAPIView.as_view(), name='subject-topper'),
     path('analytics/overall-topper/', OverallTopperAPIView.as_view(), name='overall-topper'),
     path('analytics/gender-topper/', GenderWiseTopperAPIView.as_view(), name='gender-topper'),
+
+    path('teacher/timetable/', teacher_timetable_view, name='teacher-timetable'),
+    path('student/timetable/', student_timetable_view, name='student-timetable'),
 ]
